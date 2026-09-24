@@ -6,6 +6,8 @@
   --secondary: #0f766e;
   --accent: #a855f7;
   --border: #d9e2ef;
+  --warn: #b45309;
+  --danger: #be123c;
 }
 
 * {
@@ -18,7 +20,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -29,12 +32,17 @@ button {
   background: #ffffff;
   color: #172033;
   cursor: pointer;
+  padding: 0 14px;
+}
+
+button:hover {
+  border-color: #b6c4d8;
 }
 
 .app {
-  width: min(1160px, calc(100% - 32px));
+  width: min(1240px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 30px 0 44px;
+  padding: 26px 0 48px;
 }
 
 .hero,
@@ -46,13 +54,19 @@ button {
   box-shadow: 0 16px 40px rgba(31, 41, 55, 0.08);
 }
 
+/* ---------- 顶部 ---------- */
+
 .hero {
-  min-height: 250px;
-  display: grid;
-  align-content: center;
-  gap: 14px;
-  padding: 34px;
+  padding: 26px 30px;
   border-left: 7px solid var(--primary);
+}
+
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
 .hero p,
@@ -61,162 +75,650 @@ button {
   margin: 0;
 }
 
-.hero p,
-.heading p {
+.hero p {
   color: var(--primary);
   font-weight: 800;
+  letter-spacing: 0.12em;
 }
 
 .hero h1 {
-  font-size: clamp(34px, 6vw, 62px);
-  line-height: 1;
-  letter-spacing: 0;
+  font-size: clamp(26px, 4vw, 40px);
+  line-height: 1.15;
+  margin: 8px 0 10px;
 }
 
 .hero span {
-  max-width: 860px;
+  display: block;
+  max-width: 780px;
   color: #526071;
   line-height: 1.75;
+  font-size: 14px;
 }
+
+.hero-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.hero-actions .ghost {
+  color: #64748b;
+}
+
+/* ---------- 指标 ---------- */
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin: 18px 0;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin: 16px 0;
 }
 
 .metrics article {
-  padding: 18px;
+  padding: 14px 16px;
   border-top: 4px solid var(--secondary);
+}
+
+.metrics article.warn {
+  border-top-color: var(--warn);
+}
+
+.metrics article.warn strong {
+  color: var(--warn);
+}
+
+.metrics article.money {
+  border-top-color: var(--primary);
+}
+
+.metrics article.money strong {
+  color: var(--primary);
 }
 
 .metrics small {
   color: #64748b;
+  font-size: 12px;
 }
 
 .metrics strong {
   display: block;
-  margin-top: 10px;
-  font-size: 30px;
+  margin-top: 8px;
+  font-size: 22px;
+  white-space: nowrap;
 }
 
-.workspace {
+/* ---------- 布局 ---------- */
+
+.layout {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 18px;
-  margin-bottom: 18px;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  align-items: start;
 }
 
 .panel {
-  padding: 22px;
+  padding: 20px;
 }
 
-.panel h2,
-.panel h3,
-.heading p {
-  margin-top: 0;
-}
-
-.chips {
+.panel-head {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.chips button {
-  padding: 0 12px;
-  border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
-  background: color-mix(in srgb, var(--primary) 8%, #ffffff);
-}
-
-.heading {
-  display: flex;
-  align-items: start;
   justify-content: space-between;
-  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.panel-head p,
+.detail-head p {
+  margin: 0;
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.panel-head h2,
+.detail-head h2 {
+  margin: 4px 0 0;
+  font-size: 18px;
+}
+
+/* ---------- 订单侧栏 ---------- */
+
+.sidebar {
+  position: sticky;
+  top: 16px;
+}
+
+.order-list {
+  display: grid;
+  gap: 10px;
   margin-bottom: 18px;
 }
 
-.heading h2 {
-  margin-bottom: 0;
+.order-card {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fbfdff;
+  min-height: 0;
+}
+
+.order-card.active {
+  border-color: var(--primary);
+  box-shadow: inset 3px 0 0 var(--primary);
+  background: #fff5f7;
+}
+
+.order-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.order-card-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.order-card-sub {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.sidebar-form {
+  border-top: 1px dashed var(--border);
+  padding-top: 16px;
+}
+
+.sidebar-form h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+
+/* ---------- 表单 ---------- */
+
+.form-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.field > span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.field > span em {
+  font-style: normal;
+  color: #94a3b8;
+  margin-left: 6px;
+  font-size: 12px;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 40px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  padding: 0 12px;
+  background: #ffffff;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  border-color: var(--primary);
 }
 
 .primary {
   background: var(--primary);
   color: #ffffff;
   border-color: var(--primary);
-  padding: 0 14px;
+  font-weight: 600;
 }
 
-.field-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+.primary:hover {
+  border-color: var(--primary);
+  filter: brightness(1.05);
 }
 
-label {
-  display: grid;
-  gap: 8px;
+button.danger {
+  background: #fff1f2;
+  color: var(--danger);
+  border-color: #fecdd3;
 }
 
-label span {
-  color: #64748b;
+.error {
+  margin: 0;
+  color: var(--danger);
   font-size: 13px;
 }
 
-input {
-  width: 100%;
-  min-height: 42px;
-  border-radius: 7px;
-  border: 1px solid var(--border);
-  padding: 0 12px;
-}
-
-.records {
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
   display: grid;
   gap: 12px;
 }
 
-.records article {
+fieldset:disabled {
+  opacity: 0.55;
+}
+
+fieldset:disabled button,
+fieldset:disabled input,
+fieldset:disabled select {
+  cursor: not-allowed;
+}
+
+/* ---------- 订单详情 ---------- */
+
+.detail {
   display: grid;
-  grid-template-columns: 54px 1fr;
+  gap: 16px;
+}
+
+.detail-head {
+  display: grid;
   gap: 14px;
+}
+
+.detail-head .sub {
+  color: #64748b;
+  font-size: 13px;
+  display: inline-flex;
   align-items: center;
-  padding: 14px;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.stat-grid > div {
+  background: #f8fafc;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #fbfdff;
+  padding: 10px 12px;
 }
 
-.records b {
+.stat-grid small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.stat-grid b {
+  display: block;
+  margin-top: 4px;
+  font-size: 17px;
+}
+
+.allowance-bar {
+  height: 8px;
+  border-radius: 99px;
+  background: #eef2f7;
+  overflow: hidden;
+}
+
+.allowance-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--secondary), var(--accent));
+  transition: width 0.3s ease;
+}
+
+.allowance-bar i.full {
+  background: linear-gradient(90deg, var(--warn), var(--danger));
+}
+
+/* ---------- 表格 ---------- */
+
+.table-wrap {
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.data-table th {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  background: #f8fafc;
+}
+
+.row-broken td {
+  color: #94a3b8;
+  background: #fafafa;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.ok {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.badge.warn {
+  background: #fffbeb;
+  color: var(--warn);
+}
+
+.badge.dead {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* ---------- 内联表单 ---------- */
+
+.inline-form {
+  border-top: 1px dashed var(--border);
+  padding-top: 16px;
   display: grid;
-  place-items: center;
-  height: 44px;
+  gap: 12px;
+}
+
+.inline-form h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.lock-notice {
+  margin: 0;
+  padding: 10px 14px;
   border-radius: 8px;
-  color: #ffffff;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: var(--warn);
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.records h3 {
-  margin-bottom: 6px;
+.preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  font-size: 13px;
+  align-items: center;
 }
 
-.records p {
+.preview.over {
+  background: #fff7ed;
+  border-color: #fdba74;
+}
+
+.tag-ok {
+  color: #047857;
+  font-weight: 700;
+}
+
+.tag-over {
+  color: var(--warn);
+  font-weight: 700;
+}
+
+/* ---------- 锁定确认面板 ---------- */
+
+.lock-panel {
+  border: 1px solid #fecdd3;
+  border-left: 6px solid var(--danger);
+  background: linear-gradient(180deg, #fff5f6, #ffffff);
+}
+
+.lock-tag {
+  margin: 0;
+  color: var(--danger);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.lock-panel h2 {
+  margin: 6px 0;
+}
+
+.lock-desc {
   margin: 0;
   color: #526071;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.7;
+  max-width: 720px;
 }
 
-@media (max-width: 860px) {
-  .metrics,
-  .workspace,
-  .field-grid {
+.lock-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.lock-grid > div {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.lock-grid .span2 {
+  grid-column: span 2;
+}
+
+.lock-grid small {
+  color: #64748b;
+  font-size: 12px;
+  display: block;
+}
+
+.lock-grid b {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.lock-grid b.danger {
+  color: var(--danger);
+}
+
+.confirm-form {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ---------- 换石台账 ---------- */
+
+.history {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.history-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: #fbfdff;
+  display: grid;
+  gap: 10px;
+}
+
+.history-card.status-待确认 {
+  border-color: #fdba74;
+  background: #fffaf4;
+}
+
+.history-card.status-已驳回 {
+  opacity: 0.75;
+}
+
+.history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.history-time {
+  color: #94a3b8;
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+.history-flow {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stone-box {
+  flex: 1;
+  min-width: 150px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px 12px;
+  display: grid;
+  gap: 2px;
+}
+
+.stone-box small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.stone-box span {
+  color: #526071;
+  font-size: 13px;
+}
+
+.stone-box.calc {
+  background: #fff5f7;
+  border-color: #fecdd3;
+}
+
+.stone-box.calc b {
+  color: var(--primary);
+}
+
+.arrow {
+  align-self: center;
+  color: #94a3b8;
+  font-size: 18px;
+}
+
+.reason,
+.decision {
+  margin: 0;
+  font-size: 13px;
+  color: #526071;
+}
+
+.decision {
+  color: #047857;
+}
+
+.empty {
+  color: #94a3b8;
+  text-align: center;
+  padding: 18px 0;
+  margin: 0;
+}
+
+.empty-detail {
+  display: grid;
+  place-items: center;
+  min-height: 300px;
+  color: #94a3b8;
+}
+
+/* ---------- 响应式 ---------- */
+
+@media (max-width: 1080px) {
+  .metrics {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .layout {
     grid-template-columns: 1fr;
   }
 
-  .hero {
-    min-height: 210px;
-    padding: 24px;
+  .sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .metrics,
+  .stat-grid,
+  .lock-grid,
+  .confirm-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .lock-grid .span2 {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .metrics,
+  .stat-grid,
+  .lock-grid,
+  .confirm-form {
+    grid-template-columns: 1fr;
+  }
+
+  .lock-grid .span2 {
+    grid-column: span 1;
   }
 }
