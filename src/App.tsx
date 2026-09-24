@@ -1,126 +1,118 @@
+import { useCallback, useMemo, useState } from "react";
 import "./styles.css";
-
-const project = {
-  "sourceNo": 8,
-  "id": "hxyfront-62006",
-  "port": 62006,
-  "title": "珠宝镶嵌宝石分拣",
-  "domain": "珠宝镶嵌",
-  "prompt": "我需要一个面向珠宝镶嵌工作室的宝石分拣前端系统，可以记录宝石编号、种类、形状、克拉重量、尺寸、净度、颜色、切工、镶嵌位置和分拣状态。页面需要有分拣批次、尺寸筛选、镶嵌位置示意图、缺陷备注和按订单查看的宝石清单。",
-  "palette": [
-    "#be123c",
-    "#0f766e",
-    "#a855f7"
-  ],
-  "metrics": [
-    "分拣批次",
-    "待镶嵌",
-    "缺陷备注",
-    "总克拉"
-  ],
-  "filters": [
-    "圆形",
-    "椭圆",
-    "梨形",
-    "祖母绿切"
-  ],
-  "fields": [
-    "宝石编号",
-    "种类",
-    "形状",
-    "克拉重量",
-    "尺寸",
-    "镶嵌位置"
-  ],
-  "records": [
-    [
-      "ST-2048",
-      "蓝宝石",
-      "椭圆6x4mm",
-      "主石位"
-    ],
-    [
-      "ST-2061",
-      "钻石",
-      "圆形0.08ct",
-      "围石A组"
-    ],
-    [
-      "ST-2099",
-      "祖母绿",
-      "内含物明显",
-      "需客户确认"
-    ]
-  ]
-};
+import { summarize } from "./domain/loss";
+import { useArchive } from "./store/useArchive";
+import { OrderList } from "./components/OrderList";
+import { OrderDetail } from "./components/OrderDetail";
+import { Toast, type ToastState } from "./components/Toast";
 
 function App() {
+  const {
+    orders,
+    ready,
+    createOrder,
+    addStone,
+    registerReplace,
+    approve,
+    removeOrder,
+  } = useArchive();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState | null>(null);
+
+  const showError = useCallback(
+    (message: string) => setToast({ kind: "error", message }),
+    []
+  );
+  const showSuccess = useCallback(
+    (message: string) => setToast({ kind: "success", message }),
+    []
+  );
+
+  // 汇总全部由判断层从事件流推导，不放任何冗余字段
+  const summaries = useMemo(() => {
+    const map = new Map(orders.map((o) => [o.id, summarize(o)]));
+    return map;
+  }, [orders]);
+
+  // 默认选中第一张订单（含新建后自动选中）
+  const selected = useMemo(() => {
+    if (!ready) return undefined;
+    const found = orders.find((o) => o.id === selectedId);
+    return found ?? orders[0];
+  }, [orders, selectedId, ready]);
+
+  const runAction = useCallback(
+    (action: () => void, success?: string) => {
+      try {
+        action();
+        if (success) showSuccess(success);
+      } catch (err) {
+        showError(err instanceof Error ? err.message : "操作失败");
+      }
+    },
+    [showError, showSuccess]
+  );
+
   return (
     <main className="app">
       <section className="hero">
-        <p>{project.id} · 源提示词{project.sourceNo} · Port {project.port}</p>
-        <h1>{project.title}</h1>
-        <span>{project.prompt}</span>
+        <p>镶石损耗核算台 · 本地档案（localStorage）</p>
+        <h1>镶坏不再靠口头记</h1>
+        <span>
+          按订单登记宝石编号、形状、原克拉、当前克拉、镶嵌位置与损坏原因；每次换石保留前后重量。
+          返工累计损耗超过订单允许克拉即自动冻结，须负责人确认放行后才能继续镶嵌；放行后总损耗、补石数与补款金额同步更新。
+        </span>
       </section>
 
-      <section className="metrics">
-        {project.metrics.map((metric: string, index: number) => (
-          <article key={metric}>
-            <small>{metric}</small>
-            <strong>{[86, 14, 7, 32][index] ?? 12}</strong>
-          </article>
-        ))}
-      </section>
+      <div className="layout">
+        <OrderList
+          orders={orders}
+          summaries={summaries}
+          selectedId={selected?.id ?? null}
+          onSelect={setSelectedId}
+          onCreate={(input) =>
+            runAction(() => {
+              const o = createOrder(input);
+              setSelectedId(o.id);
+            }, `订单 ${input.code} 已建档`)
+          }
+          onError={showError}
+        />
 
-      <section className="workspace">
-        <aside className="panel">
-          <h2>{project.domain}筛选</h2>
-          <div className="chips">
-            {project.filters.map((item: string) => (
-              <button key={item}>{item}</button>
-            ))}
-          </div>
-        </aside>
+        {!ready ? (
+          <section className="panel loading">正在读取本地档案…</section>
+        ) : selected ? (
+          <OrderDetail
+            key={selected.id}
+            order={selected}
+            summary={summaries.get(selected.id)!}
+            onAddStone={(input) =>
+              runAction(() => addStone(selected.id, input))
+            }
+            onRegisterReplace={(input) =>
+              runAction(() => registerReplace(selected.id, input))
+            }
+            onApprove={(input) =>
+              runAction(() => approve(selected.id, input))
+            }
+            onDelete={() =>
+              runAction(() => {
+                removeOrder(selected.id);
+                setSelectedId(null);
+              }, "订单已删除")
+            }
+            onError={showError}
+            onSuccess={showSuccess}
+          />
+        ) : (
+          <section className="panel empty-detail">
+            <h2>没有订单</h2>
+            <p>从左侧「新建订单」开始建立镶石损耗档案。</p>
+          </section>
+        )}
+      </div>
 
-        <section className="panel form-panel">
-          <div className="heading">
-            <div>
-              <p>专业字段</p>
-              <h2>新增记录</h2>
-            </div>
-            <button className="primary">保存草稿</button>
-          </div>
-          <div className="field-grid">
-            {project.fields.map((field: string) => (
-              <label key={field}>
-                <span>{field}</span>
-                <input placeholder={"填写" + field} />
-              </label>
-            ))}
-          </div>
-        </section>
-      </section>
-
-      <section className="panel">
-        <div className="heading">
-          <div>
-            <p>历史记录</p>
-            <h2>近期工作台</h2>
-          </div>
-          <button>导出摘要</button>
-        </div>
-        <div className="records">
-          {project.records.map((record: string[], index: number) => (
-            <article key={record.join("-")}>
-              <b>{String(index + 1).padStart(2, "0")}</b>
-              <div>
-                <h3>{record[0]}</h3>
-                <p>{record.slice(1).join(" · ")}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </main>
   );
 }
